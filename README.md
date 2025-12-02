@@ -20,6 +20,7 @@
 ![Telegram Clone Preview](https://img.shields.io/badge/Preview-Live-success?style=for-the-badge)
 
 ---
+<img width="1917" height="1079" alt="image" src="https://github.com/user-attachments/assets/3f9638ff-7b00-4b10-86c0-f46e94f074e9" />
 
 ## 🚀 Overview
 
