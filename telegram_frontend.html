@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #0e1621;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 420px;
+            background: #212d3b;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #0f1419;
+        }
+
+        .sidebar-header {
+            padding: 15px 20px;
+            background: #17212b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            color: #8b98a5;
+            cursor: pointer;
+        }
+
+        .search-box {
+            flex: 1;
+            margin: 0 15px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 35px 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background: #0f1419;
+            color: #fff;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8b98a5;
+        }
+
+        /* Chat List */
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #0f1419;
+            transition: background 0.2s;
+        }
+
+        .chat-item:hover {
+            background: #182533;
+        }
+
+        .chat-item.active {
+            background: #2b5278;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            font-size: 20px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .chat-name {
+            color: #fff;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .chat-time {
+            color: #8b98a5;
+            font-size: 13px;
+        }
+
+        .chat-preview {
+            color: #8b98a5;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Main Chat Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0e1621;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: #17212b;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #0f1419;
+        }
+
+        .chat-header .avatar {
+            width: 42px;
+            height: 42px;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .chat-header-info h3 {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .chat-header-info p {
+            color: #8b98a5;
+            font-size: 13px;
+        }
+
+        /* Messages Area */
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%230e1621" width="100" height="100"/></svg>');
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 60%;
+            padding: 10px 15px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .message.received .message-content {
+            background: #182533;
+            color: #fff;
+            border-radius: 12px 12px 12px 2px;
+        }
+
+        .message.sent .message-content {
+            background: #2b5278;
+            color: #fff;
+            border-radius: 12px 12px 2px 12px;
+        }
+
+        .message-text {
+            margin-bottom: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #8b98a5;
+            text-align: right;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 15px 20px;
+            background: #17212b;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #0f1419;
+        }
+
+        .attach-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: #8b98a5;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .attach-btn:hover {
+            background: #0f1419;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            background: #0f1419;
+            color: #fff;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2b5278;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #3a6a99;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0e1621;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2b5278;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="menu-icon">☰</div>
+                <div class="search-box">
+                    <input type="text" placeholder="Search" id="searchInput">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+            <div class="chat-list" id="chatList">
+                <div class="chat-item active" data-chat="1">
+                    <div class="avatar">JD</div>
+                    <div class="chat-info">
+                        <div class="chat-top">
+                            <span class="chat-name">John Doe</span>
+                            <span class="chat-time">14:32</span>
+                        </div>
+                        <div class="chat-preview">Hey! How are you doing?</div>
+                    </div>
+                </div>
+                <div class="chat-item" data-chat="2">
+                    <div class="avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">SA</div>
+                    <div class="chat-info">
+                        <div class="chat-top">
+                            <span class="chat-name">Sarah Anderson</span>
+                            <span class="chat-time">12:15</span>
+                        </div>
+                        <div class="chat-preview">See you tomorrow! 👋</div>
+                    </div>
+                </div>
+                <div class="chat-item" data-chat="3">
+                    <div class="avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">TG</div>
+                    <div class="chat-info">
+                        <div class="chat-top">
+                            <span class="chat-name">Tech Group</span>
+                            <span class="chat-time">11:48</span>
+                        </div>
+                        <div class="chat-preview">Mike: Check out this article</div>
+                    </div>
+                </div>
+                <div class="chat-item" data-chat="4">
+                    <div class="avatar" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">EM</div>
+                    <div class="chat-info">
+                        <div class="chat-top">
+                            <span class="chat-name">Emily Martinez</span>
+                            <span class="chat-time">Yesterday</span>
+                        </div>
+                        <div class="chat-preview">Thanks for your help!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            <div class="chat-header">
+                <div class="avatar">JD</div>
+                <div class="chat-header-info">
+                    <h3>John Doe</h3>
+                    <p>online</p>
+                </div>
+            </div>
+
+            <div class="messages" id="messagesContainer">
+                <div class="message received">
+                    <div class="message-content">
+                        <div class="message-text">Hey! How are you doing?</div>
+                        <div class="message-time">14:32</div>
+                    </div>
+                </div>
+                <div class="message sent">
+                    <div class="message-content">
+                        <div class="message-text">I'm doing great! Thanks for asking 😊</div>
+                        <div class="message-time">14:33</div>
+                    </div>
+                </div>
+                <div class="message received">
+                    <div class="message-content">
+                        <div class="message-text">That's awesome! Want to grab coffee later?</div>
+                        <div class="message-time">14:34</div>
+                    </div>
+                </div>
+                <div class="message sent">
+                    <div class="message-content">
+                        <div class="message-text">Sure! What time works for you?</div>
+                        <div class="message-time">14:35</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <button class="attach-btn">📎</button>
+                <input type="text" class="message-input" placeholder="Message" id="messageInput">
+                <button class="send-btn" id="sendBtn">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const chatItems = document.querySelectorAll('.chat-item');
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text === '') return;
+
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + 
+                        now.getMinutes().toString().padStart(2, '0');
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message sent';
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="message-text">${text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            messageInput.value = '';
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        chatItems.forEach(item => {
+            item.addEventListener('click', () => {
+                chatItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
